@@ -8,7 +8,8 @@ const bodyParser = require('body-parser');
 const adminRoutes = require("./routes/admin");
 const blogRoutes = require("./routes/blog");
 const { get404 } = require('./controllers/error');
-const { response } = require('express');
+
+const sequelize = require('./util/database');
 
 app.use(bodyParser.urlencoded({extended: false}));
 
@@ -26,5 +27,11 @@ app.use(blogRoutes);
 //404 page not found middleware//
 app.use(get404);
 
-
-app.listen(3000);
+sequelize.sync()
+.then((result) => {
+    console.log(result);
+    app.listen(3000);
+})
+.catch((err) => {
+console.log(err);
+});

@@ -1,5 +1,4 @@
-
-const Blog = require('../models/admin');
+const Blog = require('../models/blog');
 
 exports.adminHome = (req, res, next) => {
     res.send("<h1>admin 1</h1>");
@@ -16,22 +15,24 @@ exports.postAddBlog = (req, res, next) => {
     const author = req.body.author;
     const status = 1;
 
-    const blog = new Blog(null, title, content, author, status);
-
-    blog.save()
-        .then(() => {
-            res.redirect("/admin/view-blog");
-        })
+    Blog.create({
+        title: title,
+        content: content,
+        author: author,
+        status: status
+    }).then(() => {
+        res.redirect("/admin/view-blog");
+    })
         .catch(error => {
             console.log(error);
         });
 }
 
 exports.viewBlog = (req, res, next) => {
-    Blog.fetchAll()
+    Blog.findAll({ raw: true })
         .then(resultData => {
-            // console.log(resultData[0].length);
-            res.render('admin/viewblog', { pageTitle: "View All BLogs", data: resultData[0] });
+            // console.log("subhasree", resultData, "subhasree"); // {raw:true} used to console the data
+            res.render('admin/viewblog', { pageTitle: "View All BLogs", data: resultData });
         })
         .catch(error => {
             console.log(error);
@@ -41,12 +42,12 @@ exports.viewBlog = (req, res, next) => {
 
 exports.viewSingleBlog = (req, res, next) => {
     const blogId = req.params.blogId;
-    
+
     console.log(req.query.affid);
     console.log(req.query.clickid);
-    Blog.findById(blogId)
-        .then(([resultData]) => {   // array destructure
-            res.render('admin/singleblog', { pageTitle: resultData[0].title, blog: resultData[0] });
+    Blog.findByPk(blogId)
+        .then((resultData) => {
+            res.render('admin/singleblog', { pageTitle: resultData.title, blog: resultData });
         })
         .catch(error => {
             console.log(error);
@@ -57,9 +58,9 @@ exports.viewSingleBlog = (req, res, next) => {
 exports.editBlog = (req, res, next) => {
     const blogId = req.params.blogId;
 
-    Blog.findById(blogId)
-        .then(([resultData]) => {   // array destructure
-            res.render('admin/editblog', { pageTitle: resultData[0].title, blog: resultData[0] });
+    Blog.findByPk(blogId)
+        .then((resultData) => {
+            res.render('admin/editblog', { pageTitle: resultData.title, blog: resultData });
         })
         .catch(error => {
             console.log(error);
@@ -73,10 +74,15 @@ exports.updateBlog = (req, res, next) => {
     const content = req.body.content;
     const author = req.body.author;
     const status = 1;
-    
-    const blog = new Blog(id, title, content, author, status);
 
-    blog.update()
+    Blog.update({
+        title: title,
+        content: content,
+        author: author,
+        status: status
+    }, {
+        where: { id: id },
+    })
         .then(() => {
             res.redirect(`/admin/edit-blog/${id}`);
         })
@@ -90,10 +96,11 @@ exports.updateBlog = (req, res, next) => {
 exports.deleteBlog = (req, res, next) => {
     const blogId = req.params.blogId;
 
-    Blog.delete(blogId)
-        .then(([resultData]) => {   // array destructure
-            console.log(resultData);
-            res.redirect("/admin/view-blog");
+    Blog.findByPk(blogId)
+        .then((resultData) => {
+            resultData.destroy();
+        }).then(() => {
+            res.redirect(`/admin/view-blog/`);
         })
         .catch(error => {
             console.log(error);
