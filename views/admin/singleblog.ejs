@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+</head>
+<body>
+    <h1><%= blog.title %></h1><br>
+    <p><%= blog.content %></p>
+    <br>
+     <p><%= blog.author %></p>
+
+     <th colspan="2" class="text-center">
+        <a href="/admin/add-blog/">Add Blog</a>
+        <a href="/admin/edit-blog/<%= blog.id %>">Edit Blog</a>
+        <a href="/admin/delete-blog/<%= blog.id %>">Delete Blog</a>
+    </th>
+</body>
+</html>
